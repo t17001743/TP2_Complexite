@@ -37,20 +37,18 @@ public class Main {
             System.out.println(Arrays.toString(data1[i]));
             i++;
         }
+
+        //on vérifie si le fichier cnf de la formule est bien écrit, sinon le programme s'arrête
+        if(!data1[0][0].equals("p") || !data1[0][1].equals("cnf")){
+            System.out.println();
+            System.out.println("Le fichier .cnf est incorrect.");
+            System.exit(0);
+        }
         System.out.println();
 
         String[] variables = new String[Integer.parseInt(data1[0][2])];  //tableau contenant les variables de la formule
         int nbVariables = Integer.parseInt(data1[0][2]);
         String nbClauses = data1[0][3];
-
-        /*System.out.print("Formule CNF : (");
-        for(int j=0; j < Integer.parseInt(nbClauses); j++){
-            for(int k=1; k < variables.length; k++){
-                System.out.print(data1[j][k]);
-            }
-        }
-        System.out.println(")");
-        System.out.println();*/
 
 
         //***********************************************Fichier d'affectations des variables***********************************************
@@ -67,14 +65,15 @@ public class Main {
         System.out.println();
 
         int TRUE = 1, FALSE = 0;
+        String[][] copieData2 = new String[1][nbVariables];
 
         //parcours du tableau des affectations
         for(int k=0; k < nbVariables; k++) {
             //si le vrai littéral a un "-" devant, il est égal à 0
-            if(data2[0][k].startsWith("-")) data2[0][k] = String.valueOf(FALSE);
+            if(data2[0][k].startsWith("-")) copieData2[0][k] = String.valueOf(FALSE);
             //sinon, il est égal à 1
-            else data2[0][k] = String.valueOf(TRUE);
-            System.out.print("x" + (k+1) + " = " + data2[0][k] + ", ");
+            else copieData2[0][k] = String.valueOf(TRUE);
+            System.out.print("x" + (k+1) + " = " + copieData2[0][k] + "   ");
         }
         System.out.println();
 
