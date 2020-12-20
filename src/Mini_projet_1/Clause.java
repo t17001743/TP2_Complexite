@@ -1,29 +1,31 @@
 package Mini_projet_1;
 
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Scanner;
 
 public class Clause {
 
-    //private String[] variables;  //tableau de variables pour chaque clause
-    private String fichierFormule, fichierAffectation;
-    private ArrayList<Boolean> tabValeurs;  //new ArrayList<Boolean>();
-    private ArrayList<ArrayList<Integer>> tabClauses; //new ArrayList<ArrayList<Integer>>();
+    private String fichierFormule, fichierAffectation;  //les deux fichiers .cnf
+    private ArrayList<Boolean> tabValeurs;  //liste des valeurs affectées aux variables
+    private ArrayList<ArrayList<Integer>> tabClauses;  //liste des clauses de la formule
     private int nbVariables, nbClauses;
 
-    public Clause(){
-    }
 
+    /** Constructeur initialisant les paramètres et lisant les deux fichiers .cnf en stockant les données dans des ArrayList
+     * @param fichierFormule le fichier .cnf contenant la formule
+     * @param fichierAffectation le fichier .cnf contenant l'affectation des variables de la formule
+     * @throws Exception
+     */
     public Clause(String fichierFormule, String fichierAffectation) throws Exception {
         this.fichierFormule = fichierFormule;
         this.fichierAffectation = fichierAffectation;
-        //lire fichiers + mémoriser tableaux et variables
-        this.readFileFormule();
-        this.readFileAffectation();
+        this.tabValeurs = new ArrayList<Boolean>();
+        this.tabClauses = new ArrayList<ArrayList<Integer>>();
+        this.readFileFormule();  //lecture du fichier de la formule
+        this.readFileAffectation();  //lecture du fichier des affectations
     }
+
 
     public boolean getValX(int i) throws Exception {
         if(1 <= i && i <= nbVariables) return tabValeurs.get(i);
@@ -31,18 +33,20 @@ public class Clause {
         throw new Exception("Mauvais indice de valeur");
     }
 
+
     public void setValX(int i) throws Exception{
-        System.out.println("val x : " + i);
         if(1 <= i && i <= nbVariables) tabValeurs.set(i, true);
         else if (1 <= -i && -i <= nbVariables) tabValeurs.set(-i, false);
         else throw new Exception("Mauvais indice de valeur");
-        System.out.println("val x : " + i);
     }
 
-    public void readFileFormule() throws Exception {
-        Scanner lectureFichierFormule = new Scanner(new FileReader("src/Mini_projet_1/" + fichierFormule));
 
-        System.out.println("Données de " + fichierFormule + " : ");
+    /**
+     * Lecture du fichier contenant la formule et stockage dans une ArrayList
+     * @throws Exception si le fichier .cnf n'est pas correctement écrit
+     */
+    public void readFileFormule() throws Exception {
+        Scanner lectureFichierFormule = new Scanner(new FileReader(fichierFormule));
 
         // parcourir le fichier et le stocker dans le tableau de données
         if(lectureFichierFormule.hasNextLine()) {
@@ -55,8 +59,11 @@ public class Clause {
             nbVariables = Integer.parseInt(parts[2]);
             nbClauses = Integer.parseInt(parts[3]);
 
-            tabValeurs = new ArrayList<Boolean>(nbVariables + 1);
-            tabClauses = new ArrayList<ArrayList<Integer>>(nbClauses + 1);
+            // crée la liste des variables
+            for (int i=0; i <= nbVariables; i++)
+                tabValeurs.add(false);
+
+            // pour tabClauses pas besoin, on va faire des add()
         }
         else throw new Exception("Fichier trop court");
 
@@ -69,19 +76,19 @@ public class Clause {
             for(String part : parts) {
                 ligneClause.add(Integer.parseInt(part));
             }
-            System.out.println("toto");
             if(ligneClause.size() > 0){
                 tabClauses.add(ligneClause);
             }
-            System.out.println("titi");
 
         }
     }
 
-    public void readFileAffectation() throws Exception {
-        Scanner lectureFichierAffectation = new Scanner(new FileReader("src/Mini_projet_1/" + fichierAffectation));
 
-        System.out.println("Données de " + fichierAffectation + " : ");
+    /**
+     * Lecture du fichier contenant les affectations des variables et stockage dans une ArrayList
+     */
+    public void readFileAffectation() throws Exception {
+        Scanner lectureFichierAffectation = new Scanner(new FileReader(fichierAffectation));
 
         if(lectureFichierAffectation.hasNextLine()) {
             String ligne = lectureFichierAffectation.nextLine();
@@ -94,6 +101,12 @@ public class Clause {
         }
     }
 
+
+    /**
+     *
+     * @return un booléen représentant le résultat final du calcul de la clause avec les valeurs affectées aux variables de la formule
+     * @throws Exception
+     */
     public boolean evaluer() throws Exception {
         boolean resGlobal = true;
 
