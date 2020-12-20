@@ -6,8 +6,9 @@ import java.util.Scanner;
 
 public class Main {
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws Exception {
 
+        /*
         //fichier .cnf contenant la formule
         String formule = "formule1.cnf";
         //fichier .cnf contenant les affectations des variables de la formule
@@ -48,7 +49,17 @@ public class Main {
 
         String[] variables = new String[Integer.parseInt(data1[0][2])];  //tableau contenant les variables de la formule
         int nbVariables = Integer.parseInt(data1[0][2]);
-        String nbClauses = data1[0][3];
+        int nbClauses = Integer.parseInt(data1[0][3]);
+
+        //on extrait un tableau de littéraux de data1
+        String[][] litteraux = new String[nbVariables][nbClauses];   //tableau des données avec "rows" lignes et "columns" colonnes
+        //on ne prend pas en compte la 1ère ligne du fichier de la formule (avec "p cnf")
+        for(int j=1; j < data1.length; j++){
+            litteraux[j][0] = null;   //il n'y a pas de variable x0
+            for(int k=0; k < data1.length; k++){
+                //if(data1[j][k])
+            }
+        }
 
 
         //***********************************************Fichier d'affectations des variables***********************************************
@@ -73,9 +84,17 @@ public class Main {
             if(data2[0][k].startsWith("-")) copieData2[0][k] = String.valueOf(FALSE);
             //sinon, il est égal à 1
             else copieData2[0][k] = String.valueOf(TRUE);
-            System.out.print("x" + (k+1) + " = " + copieData2[0][k] + "   ");
+            System.out.print("x" + (k+1) + "=" + copieData2[0][k] + "   ");
         }
-        System.out.println();
+        System.out.println();*/
+
+
+
+
+        Clause clause = new Clause("formule1.cnf", "affectationVariables1.cnf");
+        boolean resultat = clause.evaluer();
+
+        System.out.println("Résultat : " + resultat);
 
     }
 }

@@ -1,81 +1,113 @@
 package Mini_projet_1;
 
-import java.io.File;
-import java.io.PrintStream;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Scanner;
 
-/*public class Clause {
+public class Clause {
 
-    public static final int FALSE = -1;
-    public static final int UNKNOWN = 0;
-    public static final int TRUE = 1;
+    //private String[] variables;  //tableau de variables pour chaque clause
+    private String fichierFormule, fichierAffectation;
+    private ArrayList<Boolean> tabValeurs;  //new ArrayList<Boolean>();
+    private ArrayList<ArrayList<Integer>> tabClauses; //new ArrayList<ArrayList<Integer>>();
+    private int nbVariables, nbClauses;
 
-    public ArrayList<int[]> clauses = new ArrayList<int[]>();
-    public ArrayList<int[]> queryClauses = new ArrayList<int[]>();
-
-    public void addClause(int[] clause) {
-        clauses.add((int[]) clause.clone());
+    public Clause(){
     }
 
-    public void clearClauses() {
-        clauses.clear();
+    public Clause(String fichierFormule, String fichierAffectation) throws Exception {
+        this.fichierFormule = fichierFormule;
+        this.fichierAffectation = fichierAffectation;
+        //lire fichiers + mémoriser tableaux et variables
+        this.readFileFormule();
+        this.readFileAffectation();
     }
 
-    public void addQueryClause(int[] clause) {
-        queryClauses.add((int[]) clause.clone());
+    public boolean getValX(int i) throws Exception {
+        if(1 <= i && i <= nbVariables) return tabValeurs.get(i);
+        if(1 <= -i && -i <= nbVariables) return !tabValeurs.get(-i);
+        throw new Exception("Mauvais indice de valeur");
     }
 
-    public void clearQueryClauses() {
-        queryClauses.clear();
+    public void setValX(int i) throws Exception{
+        System.out.println("val x : " + i);
+        if(1 <= i && i <= nbVariables) tabValeurs.set(i, true);
+        else if (1 <= -i && -i <= nbVariables) tabValeurs.set(-i, false);
+        else throw new Exception("Mauvais indice de valeur");
+        System.out.println("val x : " + i);
     }
 
-    public boolean makeQuery()
-    {
-        try {
-            int maxVar = 0;
-            ArrayList<int[]> allClauses = new ArrayList<int[]>(clauses);
-            allClauses.addAll(queryClauses);
-            for (int[] clause: allClauses)
-                for (int literal: clause)
-                    maxVar = Math.max(Math.abs(literal), maxVar);
-            PrintStream out = new PrintStream(new File("formule1.cnf"));
-            out.println("p cnf " + maxVar + " " + allClauses.size());
-            for (int[] clause: allClauses) {
-                for (int literal: clause)
-                    out.print(literal + " ");
-                out.println("0");
+    public void readFileFormule() throws Exception {
+        Scanner lectureFichierFormule = new Scanner(new FileReader("src/Mini_projet_1/" + fichierFormule));
+
+        System.out.println("Données de " + fichierFormule + " : ");
+
+        // parcourir le fichier et le stocker dans le tableau de données
+        if(lectureFichierFormule.hasNextLine()) {
+            String ligne = lectureFichierFormule.nextLine();
+            String[] parts = ligne.split(" ");
+
+            if(!parts[0].equals("p") || !parts[1].equals("cnf")){
+                throw new Exception("Le fichier .cnf est incorrect.");
             }
-            out.close();
-            Process process = Runtime.getRuntime().exec("affectationVariables.cnf");
-            Scanner sc = new Scanner(process.getInputStream());
-            sc.findWithinHorizon("RESULT:", 0);
-            String result = sc.next();
-            sc.close();
-            process.waitFor();
-            return result.equals("SAT");
+            nbVariables = Integer.parseInt(parts[2]);
+            nbClauses = Integer.parseInt(parts[3]);
+
+            tabValeurs = new ArrayList<Boolean>(nbVariables + 1);
+            tabClauses = new ArrayList<ArrayList<Integer>>(nbClauses + 1);
         }
-        catch (Exception e) {
-            System.out.println(e);
+        else throw new Exception("Fichier trop court");
+
+        while (lectureFichierFormule.hasNextLine()) {
+            String ligne = lectureFichierFormule.nextLine();
+            String[] parts = ligne.split(" ");
+
+            ArrayList<Integer> ligneClause = new ArrayList<Integer>();
+
+            for(String part : parts) {
+                ligneClause.add(Integer.parseInt(part));
+            }
+            System.out.println("toto");
+            if(ligneClause.size() > 0){
+                tabClauses.add(ligneClause);
+            }
+            System.out.println("titi");
+
         }
-        return false;
     }
 
-    public int testLiteral(int literal) {
-        int result = UNKNOWN;
-        clearQueryClauses();
-        int[] clauseT = {literal};
-        addQueryClause(clauseT);
-        if (!makeQuery())
-            result = FALSE;
-        else {
-            clearQueryClauses();
-            int[] clauseF = {-literal};
-            addQueryClause(clauseF);
-            if (!makeQuery())
-                result = TRUE;
+    public void readFileAffectation() throws Exception {
+        Scanner lectureFichierAffectation = new Scanner(new FileReader("src/Mini_projet_1/" + fichierAffectation));
+
+        System.out.println("Données de " + fichierAffectation + " : ");
+
+        if(lectureFichierAffectation.hasNextLine()) {
+            String ligne = lectureFichierAffectation.nextLine();
+            String[] parts = ligne.split(" ");
+
+            for(String part : parts) {
+                int k = Integer.parseInt(part);
+                setValX(k);
+            }
         }
-        clearQueryClauses();
-        return result;
     }
-}*/
+
+    public boolean evaluer() throws Exception {
+        boolean resGlobal = true;
+
+        for(ArrayList<Integer> ligneClause : tabClauses){
+            boolean resLigne = false;
+
+            for(int k : ligneClause){
+                if(k == 0) break;
+                resLigne = resLigne || getValX(k);
+            }
+
+            resGlobal = resGlobal && resLigne;
+        }
+
+        return resGlobal;
+    }
+}
